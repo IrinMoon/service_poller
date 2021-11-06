@@ -2,6 +2,8 @@ package service_poller.servicePoller;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -15,7 +17,15 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class PersistanceVerticle extends AbstractVerticle {
+public class PersistenceVerticle extends AbstractVerticle {
+
+  private static final int DB_PORT = 5432;
+  private static final String DB_HOST = "localhost";
+  private static final String DB_USER = "postgres";
+  private static final String DB_PASSWORD = "ConstantBecoming";
+  private static final String DB_NAME = "ServicePollerDB";
+
+  private static final Logger logger = LoggerFactory.getLogger(PersistenceVerticle.class);
 
   private PgPool pgPool;
   private DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
@@ -23,11 +33,11 @@ public class PersistanceVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) {
     pgPool = PgPool.pool(vertx, new PgConnectOptions()
-      .setHost("localhost")
-      .setPort(Integer.parseInt("5432"))
-      .setUser("postgres")
-      .setDatabase("ServicePollerDB")
-      .setPassword("ConstantBecoming"), new PoolOptions());
+      .setHost(DB_HOST)
+      .setPort(DB_PORT)
+      .setUser(DB_USER)
+      .setDatabase(DB_NAME)
+      .setPassword(DB_PASSWORD), new PoolOptions());
 
     vertx.eventBus().consumer("api.services.getOne", this::getOneService);
     vertx.eventBus().consumer("api.services.getAll", this::getAllServices);
@@ -35,7 +45,7 @@ public class PersistanceVerticle extends AbstractVerticle {
     vertx.eventBus().consumer("api.services.persistence.delete", this::deleteService);
 
     startPromise.complete();
-    System.out.println("PERSISTANCE VERTICLE UP");
+    logger.info("Persistence verticle is up, established connection with DB on host " + DB_HOST + " port " + DB_PORT);
   }
 
   private void executeQuery(Message msg, String query) {
@@ -51,9 +61,11 @@ public class PersistanceVerticle extends AbstractVerticle {
             .put("created_at", formatter.format((OffsetDateTime)row.getTemporal("created_at"))));
         }
         msg.reply(Json.encodePrettily(rowsArray));
+        logger.info("Sucessfully executed " + query);
       })
       .onFailure(failure -> {
         msg.fail(1, failure.getMessage());
+        logger.info("Failed to execute " + query);
       });
   }
 
@@ -84,6 +96,5 @@ public class PersistanceVerticle extends AbstractVerticle {
     String id = (String)msg.body();
     String query = String.format("delete from services where id = %s;", id);
     this.executeQuery(msg, query);
-    System.out.println(String.format(">>>> PERSISTANCE DELETE %s", msg.body()));
   }
 }

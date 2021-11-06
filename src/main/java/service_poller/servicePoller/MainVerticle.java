@@ -1,22 +1,19 @@
 package service_poller.servicePoller;
 
 import io.vertx.core.*;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
+
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.AbstractVerticle;
 
 public class MainVerticle extends AbstractVerticle {
-  //TODO: add logger
-  //TODO: add config file
-  //TODO: load testing (Jmeter?)
-  //TODO: pack it all up in a container (Docker)?
-  //TODO: readme how to deploy and run
+
+  private static final Logger logger = LoggerFactory.getLogger(MainVerticle.class);
+
+
   public void start(Promise<Void> startPromise){
 
-    Future<String> persistancePollerFuture = vertx.deployVerticle(new PersistanceVerticle())
+    Future<String> persistancePollerFuture = vertx.deployVerticle(new PersistenceVerticle())
       .compose(res -> vertx.deployVerticle(new PollerVerticle()));
 
     CompositeFuture.all(
@@ -25,8 +22,10 @@ public class MainVerticle extends AbstractVerticle {
     ).onComplete(res ->{
       if (res.succeeded()) {
         startPromise.complete();
+        logger.info("All verticles are up");
       } else {
         startPromise.fail(res.cause());
+        logger.info("Deployment failed: " + res.cause());
       }
     });
   }

@@ -2,6 +2,8 @@ package service_poller.servicePoller;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -10,9 +12,11 @@ import java.util.HashMap;
 
 public class PollerVerticle extends AbstractVerticle {
 
+  private static final Logger logger = LoggerFactory.getLogger(PollerVerticle.class);
+
   //TODO: move to config file
-  private static final int DELAY = 1000;
-  private static final int TIMEOUT = 3000;
+  private static final int DELAY = 5000;
+  private static final int TIMEOUT = 5000;
 
   private HashMap<Integer, String> servicesIdToURL    = new HashMap<Integer, String>();
   private HashMap<String, String> servicesStatus      = new HashMap<String, String>();
@@ -35,20 +39,18 @@ public class PollerVerticle extends AbstractVerticle {
           servicesStatus.put(url, "PENDING");
           servicesDetails.put(url, row_json);
           servicesIdToURL.put(row_json.getInteger("id"), url);
-
         }
-        System.out.println("SUCCESS!!! POLLER GOT STUFF FROM DB");
-        System.out.println("ID TO URL: " + servicesIdToURL.toString());
+        logger.info("Poller successfully received data from DB");
       }
       else {
-        System.out.println("POLLER FAILED TO GET SERVICES FROM DB");
+        logger.info("Poller failed to get data from db");
       }
     });
 
     vertx.setPeriodic(DELAY, this::poleServices);
 
     startPromise.complete();
-    System.out.println("POLLER VERTICLE UP");
+    logger.info("Poller verticle is up");
   }
 
   private void poleServices(Long aLong) {
@@ -59,16 +61,17 @@ public class PollerVerticle extends AbstractVerticle {
         if(result.succeeded() && result.result().statusCode() == 200){
           if (servicesStatus.containsKey(url)){
             servicesStatus.put(url, "OK");
+            logger.info(url + " status " + status);
           }
         }
         else {
           if (servicesStatus.containsKey(url)) {
             servicesStatus.put(url, "FAIL");
+            logger.info(url + " status " + status);
           }
         }
       });
     });
-    //System.out.println(servicesStatus.toString());
   }
 
   private void registerService(Message msg) {
@@ -80,22 +83,18 @@ public class PollerVerticle extends AbstractVerticle {
     servicesDetails.put(url, row_json);
     servicesIdToURL.put(row_json.getInteger("id"), url);
 
-    System.out.println(String.format(">>>> POLLER ADD %s", msg.body()));
-    System.out.println("AFTER POLLER ADDED " + servicesStatus.toString());
+    logger.info("Poller registered new service: " + row_json);
   }
 
   private void deleteService(Message msg) {
     Integer id = Integer.valueOf((String) msg.body());
     String url = servicesIdToURL.get(id);
-    System.out.println("***** id " + id);
-    System.out.println("***** url " + url);
 
     servicesStatus.remove(url);
     servicesDetails.remove(url);
     servicesIdToURL.remove(id);
 
-    System.out.println("AFTER POLLER DELETED " + servicesStatus.toString());
-    System.out.println(String.format(">>>> POLLER DELETE %s", msg.body()));
+    logger.info("Poller deleted service with id: " + id + " URL: " + url);
   }
 
   private void getStatus(Message msg) {
@@ -110,7 +109,6 @@ public class PollerVerticle extends AbstractVerticle {
         .put("created_at", details.getValue("created_at"))
         .put("status", servicesStatus.get(url)));
     });
-    System.out.println("OoOoOoOo " + res.toString());
     msg.reply(Json.encodePrettily(res));
   }
 }
