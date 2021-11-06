@@ -16,9 +16,6 @@ import io.vertx.ext.web.handler.StaticHandler;
 
 public class HTTPVerticle extends AbstractVerticle {
 
-  private static final int PORT = 8080;
-
-
   private static final Logger logger = LoggerFactory.getLogger(HTTPVerticle.class);
 
   @Override
@@ -45,15 +42,17 @@ public class HTTPVerticle extends AbstractVerticle {
     baseRouter.mountSubRouter("/api", apiRouter);
     baseRouter.get().handler(StaticHandler.create());
 
+    int port = config().getInteger("port");
+
     vertx.createHttpServer().requestHandler(baseRouter)
-      .listen(PORT, result -> {
+      .listen(port, result -> {
       if (result.succeeded()) {
         startPromise.complete();
-        logger.info("HTTP verticle is up, listening to port " + PORT);
+        logger.info("HTTP verticle is up, listening to port " + port);
 
       } else {
         startPromise.fail(result.cause());
-        logger.info("HTTP verticle failed to listen to port " + PORT);
+        logger.info("HTTP verticle failed to listen to port " + port);
       }
     });
   }

@@ -14,10 +14,6 @@ public class PollerVerticle extends AbstractVerticle {
 
   private static final Logger logger = LoggerFactory.getLogger(PollerVerticle.class);
 
-  //TODO: move to config file
-  private static final int DELAY = 5000;
-  private static final int TIMEOUT = 5000;
-
   private HashMap<Integer, String> servicesIdToURL    = new HashMap<Integer, String>();
   private HashMap<String, String> servicesStatus      = new HashMap<String, String>();
   private HashMap<String, JsonObject> servicesDetails = new HashMap<String, JsonObject>();
@@ -47,7 +43,7 @@ public class PollerVerticle extends AbstractVerticle {
       }
     });
 
-    vertx.setPeriodic(DELAY, this::poleServices);
+    vertx.setPeriodic(config().getInteger("delay"), this::poleServices);
 
     startPromise.complete();
     logger.info("Poller verticle is up");
@@ -56,7 +52,7 @@ public class PollerVerticle extends AbstractVerticle {
   private void poleServices(Long aLong) {
     servicesStatus.forEach((url, status) -> {
       WebClient.create(vertx).getAbs(url)
-        .timeout(TIMEOUT)
+        .timeout(config().getInteger("timeout"))
         .send(result -> {
         if(result.succeeded() && result.result().statusCode() == 200){
           if (servicesStatus.containsKey(url)){

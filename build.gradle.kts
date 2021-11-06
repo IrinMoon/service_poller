@@ -37,6 +37,7 @@ dependencies {
   implementation("io.vertx:vertx-shell")
   implementation("io.vertx:vertx-auth-jdbc")
   implementation("io.vertx:vertx-web-client")
+  implementation("io.vertx:vertx-config")
   implementation("com.fasterxml.jackson.core:jackson-databind:2.8.9")
 }
 

@@ -1,0 +1,16 @@
+{
+  "http": {
+    "port": 8080
+  },
+  "persistence": {
+    "db_port": 5432,
+    "db_host": "localhost",
+    "db_user": "postgres",
+    "db_password": "ConstantBecoming",
+    "db_name": "ServicePollerDB"
+  },
+  "poller" : {
+    "delay": 5000,
+    "timeout": 5000
+  }
+}
