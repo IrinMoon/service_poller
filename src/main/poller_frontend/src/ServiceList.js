@@ -1,4 +1,5 @@
 import React from 'react';
+import './ServiceList.css'
 
 class ServiceList extends React.Component {
   constructor(props) {
@@ -20,7 +21,7 @@ class ServiceList extends React.Component {
 
   render() {
     return (
-      <table>
+      <table className="service-list">
         <tbody>
           <tr>
             <th>Name</th>
