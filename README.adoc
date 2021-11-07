@@ -7,16 +7,35 @@ using a HTTP GET request.
 
 The database I used is PostgreSQL v.14.0
 DB configurations, including host, port, password and DB name can be found in the config file:
+```
 JavaProjects\servicePoller\config.json under "persistence".
+```
 
-To recreate the DB, run the following script: servicePoller\DB_scripts\create_db.sql
-using the following command: psql -U "<user>" -f "<path-to-script>"
-For example: psql -U "postgres" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_db.sql"
+To recreate the DB, run the following script:
+```
+servicePoller\DB_scripts\create_db.sql
+```
+using the following command:
+```
+psql -U "<user>" -f "<path-to-script>"
+```
+For example:
+```
+psql -U "postgres" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_db.sql"
+```
 
-To create the tables, run the following script servicePoller\DB_scripts\create_tables.sql
-using the following command: psql -U "<user>" -d "<DB-name>" -f "<path-to-script>"
-For examole: psql -U "postgres" -d "ServicePollerDB" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_tables.sql"
-
+To create the tables, run the following script:
+```
+servicePoller\DB_scripts\create_tables.sql
+```
+using the following command:
+```
+psql -U "<user>" -d "<DB-name>" -f "<path-to-script>"
+```
+For examole:
+```
+psql -U "postgres" -d "ServicePollerDB" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_tables.sql"
+```
 == Back-End building and running
 
 To package the application:
@@ -32,9 +51,11 @@ To run the application:
 == Front-End
 
 Building and running:
+```
 from directory: servicePoller\src\main\poller_frontend
 npm run build
 npm start
+```
 
 == API
 
@@ -61,4 +82,6 @@ GET http://localhost:8080/api/services
 Update Service:
 
 Delete Service:
+```
 DELETE http://localhost:8080/api/services/<id>
+```
