@@ -1,31 +1,64 @@
 = Servicepoller
 
-image:https://img.shields.io/badge/vert.x-4.2.0-purple.svg[link="https://vertx.io"]
+A simple service poller that keeps a list of services, defined by a URL, and periodically checks each service's status
+using a HTTP GET request.
 
-This application was generated using http://start.vertx.io
+== Database
 
-== Building
+The database I used is PostgreSQL v.14.0
+DB configurations, including host, port, password and DB name can be found in the config file:
+JavaProjects\servicePoller\config.json under "persistence".
 
-To launch your tests:
-```
-./gradlew clean test
-```
+To recreate the DB, run the following script: servicePoller\DB_scripts\create_db.sql
+using the following command: psql -U "<user>" -f "<path-to-script>"
+For example: psql -U "postgres" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_db.sql"
 
-To package your application:
+To create the tables, run the following script servicePoller\DB_scripts\create_tables.sql
+using the following command: psql -U "<user>" -d "<DB-name>" -f "<path-to-script>"
+For examole: psql -U "postgres" -d "ServicePollerDB" -f "C:\Users\irina\JavaProjects\servicePoller\DB_scripts\create_tables.sql"
+
+== Back-End building and running
+
+To package the application:
 ```
 ./gradlew clean assemble
 ```
 
-To run your application:
+To run the application:
 ```
 ./gradlew clean run
 ```
 
-== Help
+== Front-End
 
-* https://vertx.io/docs/[Vert.x Documentation]
-* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
-* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
-* https://gitter.im/eclipse-vertx/vertx-users[Vert.x Gitter]
+Building and running:
+from directory: servicePoller\src\main\poller_frontend
+npm run build
+npm start
 
+== API
 
+Add Service:
+```
+POST http://localhost:8080/api/services
+body example:
+{
+    "name": "medium",
+    "url": "https://medium.com/"
+}
+```
+
+Get One Service:
+```
+GET http://localhost:8080/api/services/<id>
+```
+
+Get All Services:
+```
+GET http://localhost:8080/api/services
+```
+
+Update Service:
+
+Delete Service:
+DELETE http://localhost:8080/api/services/<id>

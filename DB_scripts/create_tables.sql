@@ -1,15 +1,7 @@
-CREATE DATABASE "ServicePollerDB"
-    WITH
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'English_Israel.utf8'
-    LC_CTYPE = 'English_Israel.utf8'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1;
-
+CREATE SEQUENCE services_id_seq;
 CREATE TABLE IF NOT EXISTS public.services
 (
-    id integer NOT NULL DEFAULT nextval('services_service_id_seq'::regclass),
+    id integer NOT NULL DEFAULT nextval('services_id_seq'),
     name character varying(45) COLLATE pg_catalog."default" NOT NULL,
     url text COLLATE pg_catalog."default" NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
