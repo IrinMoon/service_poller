@@ -6,6 +6,7 @@ using a HTTP GET request.
 == Database
 
 The database I used is PostgreSQL v.14.0
+
 DB configurations, including host, port, password and DB name can be found in the config file:
 ```
 JavaProjects\servicePoller\config.json under "persistence".
