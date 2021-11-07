@@ -39,7 +39,7 @@ public class PersistenceVerticle extends AbstractVerticle {
     vertx.eventBus().consumer("api.services.persistence.delete", this::deleteService);
 
     startPromise.complete();
-    logger.info("Persistence verticle is up, established connection with DB on host "
+    logger.info("Persistence verticle is up, created DB connection pool on host "
             + config().getString("db_host") + " port " + config().getInteger("db_port"));
   }
 
@@ -60,7 +60,7 @@ public class PersistenceVerticle extends AbstractVerticle {
       })
       .onFailure(failure -> {
         msg.fail(1, failure.getMessage());
-        logger.info("Failed to execute " + query);
+        logger.info("Failed to execute " + query + " " + failure.getMessage());
       });
   }
 

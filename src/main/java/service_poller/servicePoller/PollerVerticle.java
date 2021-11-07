@@ -27,27 +27,33 @@ public class PollerVerticle extends AbstractVerticle {
 
     vertx.eventBus().request("api.services.getAll","", reply ->{
       if(reply.succeeded()) {
-        JsonArray rows = new JsonArray((String)reply.result().body());
-        for (Object row : rows){
-          JsonObject row_json = (JsonObject)row;
+        JsonArray rows = new JsonArray((String) reply.result().body());
+        for (Object row : rows) {
+          JsonObject row_json = (JsonObject) row;
           String url = row_json.getString("url");
           row_json.remove("url");
           servicesStatus.put(url, "PENDING");
           servicesDetails.put(url, row_json);
           servicesIdToURL.put(row_json.getInteger("id"), url);
         }
-        logger.info("Poller successfully received data from DB");
+        if (rows.isEmpty()) {
+          logger.info("DB query returned empty, No Services to pole");
+        } else {
+          logger.info("Poller successfully received data from DB");
+        }
+
+        vertx.setPeriodic(config().getInteger("delay"), this::poleServices);
+
+        startPromise.complete();
+        logger.info("Poller verticle is up");
+
       }
       else {
-        logger.info("Poller failed to get data from db");
+        startPromise.fail("Poller failed to get data from db");
       }
     });
-
-    vertx.setPeriodic(config().getInteger("delay"), this::poleServices);
-
-    startPromise.complete();
-    logger.info("Poller verticle is up");
   }
+
 
   private void poleServices(Long aLong) {
     servicesStatus.forEach((url, status) -> {
