@@ -80,9 +80,12 @@ Get All Services:
 GET http://localhost:8080/api/services
 ```
 
-Update Service:
-
 Delete Service:
 ```
 DELETE http://localhost:8080/api/services/<id>
+```
+
+Get all services status:
+```
+GET http://localhost:8080/api/services/status
 ```
